@@ -244,6 +244,23 @@ describe('$route', function() {
     }));
   });
 
+  describe('should match a route that is of type reg expression rather than string', function() {
+	beforeEach(module(function($routeProvider) {
+			$routeProvider.when(/^\/test\/(.*)$/, {templateUrl: 'test.html'});
+	}));
+
+	it('matches the full path', inject(function($route, $location, $rootScope) {
+			$location.path('/test/');
+			$rootScope.$digest();
+			expect($route.current.params).toEqual({});
+	}));
+
+	  it('matches the path with regex match and sets the params to the regex match', inject(function($route, $location, $rootScope) {
+		  $location.path('/test/segment02');
+		  $rootScope.$digest();
+		  expect($route.current.params).toEqual(['segment02']);
+	  }));
+  });
 
   describe('should match a route that contains optional params in the path', function() {
     beforeEach(module(function($routeProvider) {

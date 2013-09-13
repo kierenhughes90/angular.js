@@ -166,23 +166,27 @@ function $RouteProvider(){
         },
         keys = ret.keys = [];
 
-    path = path
-      .replace(/([().])/g, '\\$1')
-      .replace(/(\/)?:(\w+)([\?|\*])?/g, function(_, slash, key, option){
-        var optional = option === '?' ? option : null;
-        var star = option === '*' ? option : null;
-        keys.push({ name: key, optional: !!optional });
-        slash = slash || '';
-        return ''
-          + (optional ? '' : slash)
-          + '(?:'
-          + (optional ? slash : '')
-          + (star && '(.+)?' || '([^/]+)?') + ')'
-          + (optional || '');
-      })
-      .replace(/([\/$\*])/g, '\\$1');
+	   // only transform if string
+	   if (!(path instanceof RegExp)) {
+		   path = path
+			   .replace(/([().])/g, '\\$1')
+			   .replace(/(\/)?:(\w+)([\?|\*])?/g, function(_, slash, key, option){
+				   var optional = option === '?' ? option : null;
+				   var star = option === '*' ? option : null;
+				   keys.push({ name: key, optional: !!optional });
+				   slash = slash || '';
+				   return ''
+					   + (optional ? '' : slash)
+					   + '(?:'
+					   + (optional ? slash : '')
+					   + (star && '(.+)?' || '([^/]+)?') + ')'
+					   + (optional || '');
+			   })
+			   .replace(/([\/$\*])/g, '\\$1');
 
-    ret.regexp = new RegExp('^' + path + '$', insensitive ? 'i' : '');
+		   ret.regexp = new RegExp('^' + path + '$', insensitive ? 'i' : '');
+	   }
+
     return ret;
   }
 
@@ -446,8 +450,17 @@ function $RouteProvider(){
 
         if (key && val) {
           params[key.name] = val;
-        }
+        }  else {
+			if (val) {
+				if (!(params instanceof Array)) {
+					params = [];
+				}
+				params.push(val);
+			}
+
+		}
       }
+
       return params;
     }
 
